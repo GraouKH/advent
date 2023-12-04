@@ -1,4 +1,4 @@
-with open('input') as f:
+with open('../inputs/input1') as f:
     sum = 0
     for l in f:
         first, last = '', ''
