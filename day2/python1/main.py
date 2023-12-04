@@ -1,0 +1,1 @@
+print(sum([(1 - any([int(round.strip().split()[0]) > {'red':12, 'green':13, 'blue':14}[round.strip().split()[1]] for game in l.split(':', 1)[1].split(';') for round in game.split(',')])) * int(l.split(':', 1)[0].split()[1]) for l in open('../inputs/exemple1')]))
