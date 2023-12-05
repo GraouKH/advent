@@ -8,12 +8,6 @@ enum Color {
     Green(u32),
 }
 
-struct ColorLimit {
-    blue: u32,
-    red: u32,
-    green: u32,
-}
-
 impl FromStr for Color {
     type Err = &'static str;
 
@@ -56,22 +50,22 @@ impl FromStr for Round {
 
 #[derive(Debug)]
 struct Game {
-    id: u32,
     rounds: Vec<Round>,
 }
 
 impl Game {
-    fn is_valid(&self, limit: &ColorLimit) -> bool {
+    fn min_cubes(&self) -> u32 {
+        let (mut min_red, mut min_blue, mut min_green) = (0, 0, 0);
         for round in &self.rounds {
-            for color in &round.colors {
+           for color in &round.colors {
                 match color {
-                    Color::Blue(value) => if value > &limit.blue { return false },
-                    Color::Red(value) => if value > &limit.red { return false },
-                    Color::Green(value) => if value > &limit.green { return false }
-                } 
-            }
+                    Color::Blue(value) => if value > &min_blue { min_blue = *value },
+                    Color::Red(value) => if value > &min_red { min_red = *value },
+                    Color::Green(value) => if value > &min_green { min_green = *value }
+                }
+           }
         }
-        true
+        min_red * min_blue * min_green
     }
 }
 
@@ -85,13 +79,12 @@ impl FromStr for Game {
             return Err("Invalid game format");
         }
 
-        let id: u32 = parts[0][5..].trim().parse().map_err(|_| "Invalid game ID")?;
         let rounds: Vec<Round> = parts[1]
             .split(';')
             .map(|r| r.parse())
             .collect::<Result<_, _>>()?;
 
-        Ok(Game { id, rounds })
+        Ok(Game { rounds })
     }
 
 }
@@ -99,13 +92,9 @@ impl FromStr for Game {
 fn main() {
     let input = fs::read_to_string("../inputs/input1").expect("Read error");
     let mut sum = 0;
-    let limit = ColorLimit { red: 12, green: 13, blue:14 };
     for line in input.lines() {
         let game: Game = line.parse().unwrap();
-        if game.is_valid(&limit) {
-            sum += game.id;
-        }
+        sum += game.min_cubes();
     }
     println!("{sum:?}");
 }
-
