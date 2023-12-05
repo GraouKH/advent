@@ -1,5 +1,4 @@
 
-
 with open('../inputs/input') as f:
     content = f.read()
     modulo = content.find('\n') + 1
@@ -12,7 +11,7 @@ with open('../inputs/input') as f:
         if c.isdigit():
             number += c
             for l in look_around:
-                if 0 < i + l < len(content) and not content[i + l].isdigit() and content[i + l] != "." and content[i + l] != "\n":
+                if 0 < i + l < len(content) and not content[i + l].isdigit() and not content[i + l] in [".", "\n"]:
                     is_good_digit = True
         elif number:
             if is_good_digit:
