@@ -12,31 +12,38 @@ fn is_symbol_around(three_lines: [&str; 3], start: isize, end: usize, length: us
 
 fn main() {
     // TODO : Not use read to string :(
-    let input = fs::read_to_string("../inputs/input").expect("Read error");
-    let mut iter_lines = input.lines().peekable();
+    let input = fs::read_to_string("../inputs/exemple1").expect("Read error");
     let mut sum: usize = 0;
 
     // TODO : Use peek to check next lines
+    let mut lines: [&str; 3] = Default::default();
+    let mut iter_lines = input.lines();
+    lines[0] = iter_lines.next().unwrap();
+    lines[1] = iter_lines.next().unwrap();
+    let length_line = lines[0].len();
 
     let mut start: isize  = 0;
     let mut is_numbering = false;
-    let mut previous_line = "";
-    while let Some(line) = iter_lines.next() {
-        for (i, c) in line.chars().enumerate() {
+    let mut current_index = 0;
+    let mut new_index = 2;
+    for line in iter_lines {
+        for (i, c) in lines[current_index].chars().enumerate() {
             if c.is_numeric() {
                 if !is_numbering {
                     start = i as isize;
                     is_numbering = true;
                 }
             } else if is_numbering {
-                let three_lines: [&str; 3] = [previous_line, line, iter_lines.peek().unwrap_or(&"")];
-                if is_symbol_around(three_lines, start, i-1, line.len()) {
-                    sum += &line[start as usize..i].parse::<usize>().unwrap();
+                if is_symbol_around(lines, start, i-1, length_line) {
+                    println!("{}, {}", &lines[current_index][start as usize..i], &line);
+                    sum += &lines[current_index][start as usize..i].parse::<usize>().unwrap();
                 }
                 is_numbering = false;
             }
         }
-        previous_line = &line;
+        lines[new_index] = line;
+        current_index = (current_index + 1) % 3;
+        new_index = (new_index + 1) % 3;
     }
     println!("{sum:}");
 }
