@@ -19,3 +19,6 @@ with open('../inputs/input') as f:
             number = ''
             is_good_digit = False
     print(sum([int(i) for i in numbers])) 
+
+    for x in numbers:
+        print(x)
