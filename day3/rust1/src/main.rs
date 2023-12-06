@@ -16,7 +16,7 @@ fn main() {
     let mut iter_lines = input.lines().peekable();
     let mut sum: usize = 0;
 
-    // TODO : Use peek to check next lines
+    // TODO : https://stackoverflow.com/questions/62186871/how-to-correctly-use-peek-in-rust
 
     let mut start: isize  = 0;
     let mut is_numbering = false;
