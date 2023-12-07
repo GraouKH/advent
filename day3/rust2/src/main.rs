@@ -19,39 +19,27 @@ fn check_line(line: &str, index: isize) -> Vec<usize> {
             is_numbering = false;
         }
     }
-    if is_numbering {
-        if (start - 1..line.len() as isize).contains(&index) {
-            numbers.push(line[start as usize..].parse::<usize>().unwrap());
-        };
+    if is_numbering && (start - 1..line.len() as isize).contains(&index) {
+        numbers.push(line[start as usize..].parse::<usize>().unwrap());
     }
-    return numbers;
+    numbers
 }
 
-fn check_side<T: Iterator>(mut chars: T) -> String where
-    T: Iterator<Item = char>,
-{
-    let mut num = String::new();
-    while let Some(n) = chars.next() {
-        if n.is_numeric() {
-            num.push(n);
-        } else {
-            break;
-        }
-    }
-    num
+fn parse_side_number<T: Iterator<Item = char>>(chars: T) -> String {
+    chars.take_while(|&c| c.is_numeric()).collect::<String>()
 }
 
-fn check_lines(lines: &Vec<String>, len: usize) -> usize {
+fn check_lines(lines: &[String], len: usize) -> usize {
     let mut sum: usize = 0;
     let big_line = lines.join("");
     for (i, c) in big_line[len..len*2].chars().enumerate() {
         if c == '*' {
             let mut numbers: Vec<usize> = Vec::new();
-            let left: String = check_side(big_line[len..len+i].chars().rev()); 
+            let left: String = parse_side_number(big_line[len..len+i].chars().rev()); 
             if !left.is_empty() {
                 numbers.push(left.chars().rev().collect::<String>().parse::<usize>().unwrap());
             }
-            let right: String = check_side(big_line[len+i+1..len*2].chars()); 
+            let right: String = parse_side_number(big_line[len+i+1..len*2].chars()); 
             if !right.is_empty() {
                 numbers.push(right.parse::<usize>().unwrap());
             }
@@ -59,7 +47,6 @@ fn check_lines(lines: &Vec<String>, len: usize) -> usize {
             numbers.append(&mut check_line(&big_line[len*2..], i as isize));
             if numbers.len() == 2 {
                 sum += numbers[0] * numbers[1];
-                println!("{numbers:?}");
             }
         }
     }
