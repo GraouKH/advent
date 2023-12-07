@@ -4,7 +4,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::str::FromStr;
 
-#[derive(Debug)]
 struct Card {
     winning_numbers: HashSet<usize>,
     numbers: HashSet<usize>
