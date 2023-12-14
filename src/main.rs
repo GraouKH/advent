@@ -1,6 +1,6 @@
 use std::{fs, str::FromStr};
 
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 struct Range {
     range_start: usize,
     new_start: usize,
@@ -67,33 +67,36 @@ impl FromStr for Almanac {
 }
 
 impl Almanac {
-    fn compute(&self) -> Vec<usize> {
-        let mut location = Vec::with_capacity(self.seeds.len());
+    fn compute(&self) {
         for s in &self.seeds {
-            let l = *s;
-            let mut new_l = 0;
-            for c in &self.cogs{
-                new_l = c.compute(l);
+            let mut i = s.range_start;
+            let mut max_range = 1;
+            while i < s.range_end {
+               for cog in &self.cogs {
+                    for range in &cog.ranges {
+                        if range.range_start <= i {
+                            continue;
+                        }
+                        max_range = range.range_end - range.range_start;
+                    }
+               }
+               i += max_range;
             }
-            if new_l == l {
-                break;
-            }
-            location.push(new_l);
+            
         }
-        location
     }
 
     fn cogs_full_range(&mut self) {
-        for cog in &self.cogs {
+        for cog in &mut self.cogs {
             let mut new_ranges: Vec<Range> = Vec::new();
             cog.ranges.sort();
-            let min_range: usize = 0;
-            let max_range = usize::MAX;
-            for range in cog.ranges {
-                if range.range_start > min_range {
-                    new_ranges.push(Range{ new_start: range.range_start, range_start: min_range, range_end: range.range_start});
+            let mut min_range: usize = 0;
+            for range in &cog.ranges {
+                if min_range < range.range_start {
+                    new_ranges.push(Range{ new_start: min_range, range_start: min_range, range_end: range.range_start});
                 }
-                new_ranges.push(range);
+                new_ranges.push(*range);
+                min_range = range.range_end;
             }
             cog.ranges = new_ranges;
 
