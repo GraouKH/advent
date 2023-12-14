@@ -58,28 +58,37 @@ impl FromStr for Almanac {
 impl Almanac {
     fn compute(&self)  -> usize {
         let mut min = usize::MAX;
-        for s in &self.seeds {
-            let mut i = s.range_start;
-            let mut diff = s.range_end - i;
-            while i < s.range_end {
-                'cogs: for cog in &self.cogs {
-                    for range in &cog.ranges {
-                        if i < range.range_start || i > range.range_end {
-                            continue;
-                        }
-                        if range.range_end - i < diff {
-                            diff = range.range_end - i;
-                        }
-                        i = i + range.new_start - range.range_start;
-                        continue 'cogs;
+        let s = self.seeds[0];
+        // for s in &self.seeds{
+        let mut i = s.range_start;
+        let mut start = s.range_start;
+        let mut diff = s.range_end - i;
+        println!("i: {i}, diff: {diff}, max start {}", s.range_end);
+        while diff > 0 {
+            println!("start: {start}");
+            'cogs: for cog in &self.cogs {
+                for range in &cog.ranges {
+                    if i < range.range_start || i > range.range_end {
+                        continue;
                     }
+                    println!("range: {} - {}", range.range_start, range.range_end);
+                    if range.range_end - i < diff {
+                        diff = range.range_end - i;
+                        println!("new diff: {diff}");
+                    }
+                    i = i + range.new_start - range.range_start;
+                    println!("new i: {i}");
+                    continue 'cogs;
                 }
-                if i < min {
-                    min = i;
-                }
-                i += diff + 1;
             }
+            if i < min {
+                min = i;
+            }
+            start += diff;
+            i = start;
+            println!("new start: {start}");
         }
+        // }
         min
     }
 
@@ -102,7 +111,7 @@ impl Almanac {
 }
 
 fn main() {
-    let input = fs::read_to_string("input").expect("Read error");
+    let input = fs::read_to_string("exemple").expect("Read error");
     let mut almanac = input.parse::<Almanac>().unwrap();
     println!("input parsed");
     almanac.cogs_full_range();
