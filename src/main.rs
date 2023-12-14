@@ -20,17 +20,6 @@ struct Cog {
     ranges: Vec<Range>
 }
 
-impl Cog {
-    fn compute(&self, mut x: usize) -> usize {
-        for r in &self.ranges {
-            if (r.range_start..=r.range_end).contains(&x) {
-                x = (&r.new_start + &x) - &r.range_start ;
-                break;
-            };
-        }
-        x
-    }
-}
 struct Almanac {
     seeds: Vec<Range>,
     cogs: Vec<Cog>
@@ -67,23 +56,31 @@ impl FromStr for Almanac {
 }
 
 impl Almanac {
-    fn compute(&self) {
+    fn compute(&self)  -> usize {
+        let mut min = usize::MAX;
         for s in &self.seeds {
             let mut i = s.range_start;
-            let mut max_range = 1;
+            let mut diff = s.range_end - i;
             while i < s.range_end {
-               for cog in &self.cogs {
+                'cogs: for cog in &self.cogs {
                     for range in &cog.ranges {
-                        if range.range_start <= i {
+                        if i < range.range_start || i > range.range_end {
                             continue;
                         }
-                        max_range = range.range_end - range.range_start;
+                        if range.range_end - i < diff {
+                            diff = range.range_end - i;
+                        }
+                        i = i + range.new_start - range.range_start;
+                        continue 'cogs;
                     }
-               }
-               i += max_range;
+                }
+                if i < min {
+                    min = i;
+                }
+                i += diff + 1;
             }
-            
         }
+        min
     }
 
     fn cogs_full_range(&mut self) {
@@ -99,21 +96,17 @@ impl Almanac {
                 min_range = range.range_end;
             }
             cog.ranges = new_ranges;
-
+            
         }
     }
 }
 
-fn ranges_intersect(s1: usize, l1: usize, s2: usize, l2: usize) -> bool {
-    !(s1 + l1 <= s2 || s1 >= s2 + l2)
-}
-
 fn main() {
     let input = fs::read_to_string("input").expect("Read error");
-    
     let mut almanac = input.parse::<Almanac>().unwrap();
     println!("input parsed");
     almanac.cogs_full_range();
     println!("cogs full range");
-    
+    let min = almanac.compute();
+    println!("{min}");
 }
