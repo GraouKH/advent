@@ -1,6 +1,17 @@
 use std::{fs::File, io::{BufReader, BufRead}, collections::HashMap};
 use regex::Regex;
+use num_integer::lcm;
 
+fn lcm_of_vec(numbers: &Vec<u128>) -> u128 {
+    if numbers.is_empty() {
+        return 0;
+    }
+    let mut result = numbers[0];
+    for &num in numbers.iter().skip(1) {
+        result = lcm(result, num);
+    }
+    result
+}
 fn main() {
     let file = File::open("input").unwrap();
     let mut input_lines = BufReader::new(file).lines();
@@ -25,10 +36,12 @@ fn main() {
     }
 
     println!("{}", starts.len());
-    let mut count: usize = 0;
+    let mut count: u128 = 0;
     let mut new_starts = Vec::with_capacity(starts.len());
-    while starts.iter().any(|s| !s.ends_with('Z')) {
-        let turn = instructions[count % number_instructions];
+    let mut cycles: Vec<u128> = Vec::new();
+    while !starts.is_empty() {
+        let turn = instructions[count as usize % number_instructions];
+        count += 1;
         for current_node in &starts {
             let current_pair = nodes.get(current_node).unwrap();
             let new_node = match turn {
@@ -36,14 +49,15 @@ fn main() {
                 'R' => &current_pair.1,
                 _ => "",
             };
-            new_starts.push(new_node.to_string());
+            if !new_node.ends_with('Z') {
+                new_starts.push(new_node.to_string());
+            } else {
+                cycles.push(count);
+            }
         }
         starts = new_starts.clone();
         new_starts.clear();
-        count += 1;
-        if count % 1000000 == 0 {
-            println!("{}", count);
-        }
     }
-    println!("{}", count);
+
+    println!("result: {}", lcm_of_vec(&cycles));
 }
